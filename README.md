@@ -206,8 +206,6 @@ can be a recipe from one of the available ones, or a url or a local yaml file co
 recipe. Please also modify the local directory paths and hf access token either by providing
 `recipe_overrides` or by modifying the recipe yaml file directly (the url or local file).
 
-For all training jobs, you need to set the `image_uri` arg to `f"658645717510.dkr.ecr.{REGION}.amazonaws.com/smdistributed-modelparallel:2.4.1-gpu-py311-cu121-ubuntu20.04-sagemaker-smpv2.7.0-v1"`. For example, for `us-west-2`, the `image_uri` will be `658645717510.dkr.ecr.us-west-2.amazonaws.com/smdistributed-modelparallel:2.4.1-gpu-py311-cu121-ubuntu20.04-sagemaker-smpv2.7.0-v1`. This image can be used for other regions by following instructions on [Supported-Frameworks](https://docs.aws.amazon.com/sagemaker/latest/dg/distributed-model-parallel-support-v2.html)
-
 ```python
 import os
 import sagemaker,boto3
@@ -243,13 +241,12 @@ tensorboard_output_config = TensorBoardOutputConfig(
     s3_output_path=os.path.join(output, 'tensorboard'),
     container_local_output_path=recipe_overrides["exp_manager"]["explicit_log_dir"]
 )
-REGION = "us-west-2" #Set this to your region
+
 estimator = PyTorch(
   output_path=output_path,
   base_job_name=f"llama-recipe",
   role=role,
   instance_type="ml.p5.48xlarge",
-  image_uri=f"658645717510.dkr.ecr.{REGION}.amazonaws.com/smdistributed-modelparallel:2.4.1-gpu-py311-cu121-ubuntu20.04-sagemaker-smpv2.7.0-v1",
   training_recipe="training/llama/hf_llama3_8b_seq8k_gpu_p5x16_pretrain",
   recipe_overrides=recipe_overrides,
   sagemaker_session=sagemaker_session,
