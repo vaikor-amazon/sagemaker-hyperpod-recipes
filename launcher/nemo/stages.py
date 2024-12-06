@@ -50,7 +50,7 @@ def set_multinode_envs(env_vars, instance_type):
     # https://github.com/aws/aws-ofi-nccl/blob/master/doc/efa-env-var.md
     if get_num_efa_devices(instance_type) > 0:
         env_vars["FI_PROVIDER"] = "efa"
-    env_vars["NCCL_SOCKET_IFNAME"] = "^lo,docker0"
+    env_vars["NCCL_SOCKET_IFNAME"] = "^lo,docker0,veth_def_agent"
     env_vars["NCCL_IGNORE_DISABLED_P2P"] = "1"
     env_vars["TORCH_NCCL_ASYNC_ERROR_HANDLING"] = "1"
     env_vars["TORCH_DIST_INIT_BARRIER"] = "1"

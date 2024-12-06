@@ -11,7 +11,7 @@
 # setup
 export NCCL_DEBUG=WARN
 export FI_PROVIDER=efa
-export NCCL_SOCKET_IFNAME=^lo,docker0
+export NCCL_SOCKET_IFNAME=^lo,docker0,veth_def_agent
 export NCCL_IGNORE_DISABLED_P2P=1
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
 export TORCH_DIST_INIT_BARRIER=1
