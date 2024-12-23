@@ -293,7 +293,7 @@ class SMTraining(Training):
             if self.cfg.cluster.slurm_docker_cfg.get("post_launch_commands", None) is not None:
                 for cmd in self.cfg.cluster.slurm_docker_cfg.post_launch_commands:
                     post_launch_commands.append(cmd)
-            if self.cfg.recipes.get("model", None) and self.cfg.recipes.model.get("multi_modal", False):
+            if OmegaConf.select(self.cfg, "recipes.model.multi_modal", default=False):
                 transformers_upgrade_cmd = "pip install transformers==4.45.2"
                 post_launch_commands.append(transformers_upgrade_cmd)
 
@@ -404,6 +404,12 @@ class SMTraining(Training):
             script_text.append("")
             script_text.append("unset SLURM_NTASKS")
 
+        if get_container_type(self.cfg.get("container", None)) == "enroot" and self.cluster == "bcm":
+            if OmegaConf.select(self.cfg, "recipes.model.multi_modal", default=False):
+                transformers_upgrade_cmd = "pip install transformers==4.45.2"
+                script_text.append("")
+                script_text.append(transformers_upgrade_cmd)
+
         script_text.append("")
         script_text.append(self._make_custom_call_string(stage_cfg_path))
         return "\n".join(script_text)
@@ -460,7 +466,7 @@ class SMTraining(Training):
         shutil.copy(script_src, script_dst)
         # FIXME: Remove transformers requirement when container is updated to include the version
         # required to run multi-modal.
-        if self.cfg.recipes.get("model", None) and self.cfg.recipes.model.get("multi_modal", False):
+        if OmegaConf.select(self.cfg, "recipes.model.multi_modal", default=False):
             reqs_filename = Path(job_folder) / "requirements.txt"
             with open(reqs_filename, "w") as reqs_file:
                 reqs_file.write(f"transformers=={TRANSFORMERS_VERSION_FOR_MULTIMODAL}")
@@ -726,7 +732,7 @@ class SMTraining(Training):
         else:
             values_template.trainingConfig.scriptPath = str(self._entry_script_path)
 
-        if self.cfg.recipes.get("model", None) and self.cfg.recipes.model.get("multi_modal", False):
+        if OmegaConf.select(self.cfg, "recipes.model.multi_modal", default=False):
             transformers_upgrade_cmd = "pip install transformers==4.45.2"
             values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
 
