@@ -51,6 +51,11 @@ efa_supported_instance = set(
         "g6.24xlarge",
         "g6.48xlarge",
         "g6.8xlarge",
+        "g6e.8xlarge",
+        "g6e.16xlarge",
+        "g6e.12xlarge",
+        "g6e.24xlarge",
+        "g6e.48xlarge",
         "gr6.8xlarge",
         "i3en.12xlarge",
         "i3en.24xlarge",
@@ -88,6 +93,8 @@ efa_supported_instance = set(
         "p4d.24xlarge",
         "p4de.24xlarge",
         "p5.48xlarge",
+        "p5e.48xlarge",
+        "p5en.48xlarge",
         "r5dn.24xlarge",
         "r5dn.metal",
         "r5n.24xlarge",
@@ -118,6 +125,7 @@ efa_supported_instance = set(
         "r8g.metal-48xl",
         "trn1.32xlarge",
         "trn1n.32xlarge",
+        "trn2.48xlarge",
         "u7i-12tb.224xlarge",
         "u7in-16tb.224xlarge",
         "u7in-24tb.224xlarge",
@@ -138,10 +146,26 @@ instanceWithMultipleEFAs = {
     "p5.4xlarge": 4,
     "p5.24xlarge": 16,
     "p5.48xlarge": 32,
+    "p5e.48xlarge": 32,
+    "p5en.48xlarge": 16,
     "trn1.32xlarge": 8,
     "trn1n.32xlarge": 16,
+    "trn2.48xlarge": 16,
+    "g6e.24xlarge": 2,
+    "g6e.48xlarge": 4,
 }
 
 instanceWithRDMASupport = set(
-    ["p4d.24xlarge", "p4de.24xlarge", "p5.4xlarge", "p5.24xlarge", "p5.48xlarge", "trn1.32xlarge", "trn1n.32xlarge"]
+    [
+        "p4d.24xlarge",
+        "p4de.24xlarge",
+        "p5.4xlarge",
+        "p5.24xlarge",
+        "p5.48xlarge",
+        "p5e.48xlarge",
+        "p5en.48xlarge",
+        "trn1.32xlarge",
+        "trn1n.32xlarge",
+        "trn2.48xlarge",
+    ]
 )
