@@ -4,9 +4,13 @@ import os
 import shutil
 import stat
 import tempfile
+from pathlib import Path
+from typing import List
 
 from hydra import compose, initialize
 from hydra.core.hydra_config import HydraConfig
+
+from launcher.nemo.constants import ROOT_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -81,3 +85,17 @@ def make_hydra_cfg_instance(path, config_name, overrides):
     config = compose_hydra_cfg(path, config_name, overrides)
     HydraConfig.instance().set_config(config)
     return config
+
+
+def get_launcher_run_script_paths() -> List[Path]:
+    scripts_dir = ROOT_DIR / "launcher_scripts"
+    launch_script_paths = []
+
+    for path in scripts_dir.rglob("*.sh"):
+        if not path.is_file():
+            continue
+
+        if "run" in path.name:
+            launch_script_paths.append(path)
+
+    return launch_script_paths

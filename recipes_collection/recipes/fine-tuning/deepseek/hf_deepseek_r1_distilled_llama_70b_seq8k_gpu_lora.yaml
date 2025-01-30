@@ -1,15 +1,16 @@
 # Original Copyright (c), NVIDIA CORPORATION. Modifications © Amazon.com
 
+# Basic run information configs
 run:
-  name: mixtral
+  name: deepseek-r1-distilled-llama-70b
   results_dir: ${base_results_dir}/${.name}
   time_limit: "6-00:00:00"
   model_type: hf # huggingface for our recipes
 
-
+# Basic pytorch lightning trainer config
 trainer:
   devices: 8
-  num_nodes: 64
+  num_nodes: 1
   accelerator: gpu
   precision: bf16
   max_steps: 50
@@ -17,12 +18,15 @@ trainer:
   val_check_interval: 1
   limit_val_batches: 0 # Number of batches per each validation run, set to 0 to disable validation.
 
-
+# Basic pytorch lightning experiment config
+# Config for checkpoint/tensorboard etc
 exp_manager:
   exp_dir: null
   name: experiment
   create_tensorboard_logger: True
-  create_checkpoint_callback: False
+  create_checkpoint_callback: True
+  # Configs to save checkpoint with a fixed interval
+  # Note: These config will not work with auto checkpoint mode
   checkpoint_callback_params:
     # Set save_top_k = 0 to disable sharded checkpointing
     save_top_k: 0
@@ -32,7 +36,7 @@ exp_manager:
     save_last: False
   checkpoint_dir: ${recipes.exp_manager.exp_dir}/checkpoints/
   resume_from_checkpoint: null
-  # Set auto_checkpoint = False to disable auto resilience checkpointing
+  # Enable auto_checkpoint to automatically calculate the checkpoint interval and resume from checkpoint
   auto_checkpoint:
     enabled: False
   export_full_model:
@@ -40,71 +44,79 @@ exp_manager:
     every_n_train_steps: 0
     save_last: True
 
-use_smp_model: True # Enable sagemaker model parallelism
+################# Predefined configs ##########################
+use_smp_model: False # Disable sagemaker model parallelism for PEFT
 distributed_backend: nccl
 
-# Start training from pretrained model
-model:
-  model_type: mixtral
 
-  train_batch_size: 2
-  val_batch_size: 1
-  tensor_model_parallel_degree: 1
-  expert_model_parallel_degree: 1
-  moe: True
-  activation_checkpointing: True
-  activation_loading_horizon: 2
-  delayed_param: True
-  offload_activations: False
+# Model training configs
+model:
+  model_type: llama_v3
+  # Base configs
+  train_batch_size: 1
   seed: 12345
   grad_clip: 1.0
+  log_reduced_training_loss: True
 
+  # Memory saving / distributed training configs
+  context_parallel_degree: 1
+  moe: False
+  activation_checkpointing: True
+  activation_loading_horizon: 2
+  delayed_param: False
+  offload_activations: False
 
   # FSDP Configs
-  sharding_strategy: full_shard
+  sharding_strategy: hybrid_shard
   forward_prefetch: True
-  shard_degree: 256
+  shard_degree: 8
   backward_fetch_policy: backward_pre
   auto_wrap_policy: transformer_auto_wrap_policy
   limit_all_gathers: true
-  use_orig_param: True
+  use_orig_param: False
 
-  # model architecture
+  # FP8 config
+  fp8: False # PEFT does not support fp8
+
+  # Model architecture
   max_context_width: 8192
   max_position_embeddings: ${.max_context_width}
-  num_hidden_layers: 56
-  hidden_size: 6144
-  num_attention_heads: 48
-  intermediate_size: 16384
+  num_hidden_layers: 80
+  hidden_size: 8192
+  num_attention_heads: 64
+  intermediate_size: 28672
   initializer_range: 0.02
   layernorm_epsilon: 1e-5
-  vocab_size: 32768
+  vocab_size: 128256
   num_key_value_heads: 8
   use_flash_attention: True
-  sliding_window: null
-  num_experts_per_tok: 2
-  num_local_experts: 8
-  moe_load_balancing: 'sinkhorn'
-  global_token_shuffle: True
-  moe_all_to_all_dispatcher: False
-  rope_theta: 1000000.0
+  rope_theta: 500000.0
 
-  # Transformer Engine
-  fp8: False
-  fp8_amax_history_len: 1024
-  fp8_amax_compute_algo: max
+  # rope scaling for llama3
+  rope_scaling:
+    rope_type: llama3
+    factor: 8.0
+    high_freq_factor: 4.0
+    low_freq_factor: 1.0
+    original_max_position_embeddings: 8192
 
-  # finetune
-  do_finetune: False
-  # smp calls it `pretrained_model_weights` but we opted to follow the name used by HF
+  # Finetuning config
+  do_finetune: True
+  # The path to resume from, needs to be HF compatible
   hf_model_name_or_path: null
+  hf_access_token: null
+  # PEFT config
+  peft:
+    peft_type: lora
+    rank: 32
+    alpha: 16
+    dropout: 0.1
 
   precision: ${recipes.trainer.precision}
+  ################# End of Predefined configs ##########################
 
+  # Learning rate and optimizer configs
   lr_decay_iters: ${recipes.trainer.max_steps}
-
-  log_reduced_training_loss: True
-
   # Optimizer
   optim:
     name: adamw
@@ -119,13 +131,14 @@ model:
       constant_steps: 0
       min_lr: 0.000001
 
-  # Data
+  # Data configs
   data:
     train_dir: null
     val_dir: null
     dataset_type: hf
     use_synthetic_data: False
 
-  # Viztracer
+  # Profiling configs
+  # Viztracer profiling options
   viztracer:
     enabled: false

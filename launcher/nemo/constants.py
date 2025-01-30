@@ -18,6 +18,7 @@ NEMO_REPO = "https://github.com/NVIDIA/NeMo.git"
 NEMO_REPO_TAG = "v2.0.0rc0"  # [TODO] move to v2.0.0 once it is released
 
 SM_ADAPTER_MODEL_TYPE_TO_CODE_PATH = {
+    "deepseek": "examples/deepseek/deepseek_pretrain.py",
     "llama": "examples/llama/llama_pretrain.py",
     "mistral": "examples/mistral/mistral_pretrain.py",
     "mixtral": "examples/mixtral/mixtral_pretrain.py",

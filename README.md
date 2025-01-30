@@ -16,7 +16,7 @@ Amazon SageMaker HyperPod recipes include built-in support for:
 - Accelerators: NVIDIA H100 (ml.p5), NVIDIA A100 (ml.p4), and AWS Trainium (ml.trn1)
 - Fine-tuning: Full, QLoRA, LoRA
 - AWS Instances: ml.p5.48xlarge, ml.p4d.24xlarge, and ml.trn1.32xlarge instance families
-- Supported Models: Llama, Mistral, Mixtral models
+- Supported Models: DeepSeek r1 Distill Llama, Llama, Mistral, Mixtral models
 - Model Evaluation: Tensorboard
 
 ## Model Support
@@ -67,6 +67,14 @@ All model sources are from Hugging Face.
 
 | Model     | Method | Size | Sequence length | Nodes | Instance       | Accelerator | Recipe | Script |
 | --------- | ------ | ---- | ----------------| ----- | -------------- | ----------- | ------ | ------ |
+| DeepSeek r1 Distill Llama 3 | SFT  | 8b   | 8192          | 1     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_8b_seq8k_gpu_fine_tuning.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_8b_seq8k_gpu_fine_tuning.sh) |
+| DeepSeek r1 Distill Llama 3 | LoRA | 8b   | 8192          | 1     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_8b_seq8k_gpu_lora.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_8b_seq8k_gpu_lora.sh) |
+| DeepSeek r1 Distill Llama 3 | SFT  | 8b   | 16384         | 1     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_8b_seq16k_gpu_fine_tuning.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_8b_seq16k_gpu_fine_tuning.sh) |
+| DeepSeek r1 Distill Llama 3 | LoRA | 8b   | 16384         | 1     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_8b_seq16k_gpu_lora.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_8b_seq16k_gpu_lora.sh) |
+| DeepSeek r1 Distill Llama 3 | SFT  | 70b  | 8192          | 10    | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_70b_seq8k_gpu_fine_tuning.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_70b_seq8k_gpu_fine_tuning.sh) |
+| DeepSeek r1 Distill Llama 3 | LoRA | 70b  | 8192          | 1     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_70b_seq8k_gpu_lora.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_70b_seq8k_gpu_lora.sh) |
+| DeepSeek r1 Distill Llama 3 | SFT  | 70b  | 16384         | 16    | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_70b_seq16k_gpu_fine_tuning.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_70b_seq16k_gpu_fine_tuning.sh) |
+| DeepSeek r1 Distill Llama 3 | LoRA | 70b  | 16384         | 2     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_70b_seq16k_gpu_lora.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_70b_seq16k_gpu_lora.sh) |
 | Llama 3.1 | QLoRA  | 405b | 131072          | 2     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/llama/hf_llama3_405b_seq128k_gpu_qlora.yaml) | [link](launcher_scripts/llama/run_hf_llama3_405b_seq128k_gpu_qlora.sh) |
 | Llama 3.1 | QLoRA  | 405b | 32768           | 2     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/llama/hf_llama3_405b_seq32k_gpu_qlora.yaml) | [link](launcher_scripts/llama/run_hf_llama3_405b_seq32k_gpu_qlora.sh) |
 | Llama 3.1 | LoRA   | 405b | 16384           | 6     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/llama/hf_llama3_405b_seq16k_gpu_lora.yaml) | [link](launcher_scripts/llama/run_hf_llama3_405b_seq16k_gpu_lora.sh) |
