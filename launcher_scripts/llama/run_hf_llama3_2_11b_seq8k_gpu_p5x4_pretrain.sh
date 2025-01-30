@@ -13,7 +13,7 @@ EXP_DIR=${EXP_DIR} # Location to save experiment info including logging, checkpo
 
 
 HYDRA_FULL_ERROR=1 python3 "${SAGEMAKER_TRAINING_LAUNCHER_DIR}/main.py" \
-    recipes=training/llama/hf_llama3_2_11b_seq8k_gpu_p5x4_pretrain.yaml \
+    recipes=training/llama/hf_llama3_2_11b_seq8k_gpu_p5x4_pretrain \
     base_results_dir="${SAGEMAKER_TRAINING_LAUNCHER_DIR}/results" \
     recipes.run.name="hf-llama3-2-11b" \
     recipes.exp_manager.exp_dir="$EXP_DIR" \
