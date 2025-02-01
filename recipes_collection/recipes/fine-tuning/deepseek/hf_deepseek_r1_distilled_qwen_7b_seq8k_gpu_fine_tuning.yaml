@@ -2,7 +2,7 @@
 
 # Basic run information configs
 run:
-  name: llama3.2-3b
+  name: deepseek-r1-distilled-qwen-7b
   results_dir: ${base_results_dir}/${.name}
   time_limit: "6-00:00:00"
   model_type: hf # huggingface for our recipes
@@ -45,28 +45,27 @@ exp_manager:
     save_last: True
 
 ################# Predefined configs ##########################
-use_smp_model: True # Enable sagemaker model parallelism
+use_smp_model: False # Enable sagemaker model parallelism
 distributed_backend: nccl
-
 
 # Model training configs
 model:
-  model_type: llama_v3
+  model_type: deepseek_r1_qwen_v2
   # Base configs
-  train_batch_size: 1
+  train_batch_size: 2
   val_batch_size: 1
   seed: 12345
   grad_clip: 1.0
   log_reduced_training_loss: True
 
-  # Memory saving /distributed training configs
+  # Memory saving / distributed training configs
   tensor_model_parallel_degree: 1
   expert_model_parallel_degree: 1
   context_parallel_degree: 1
   moe: False
-  activation_checkpointing: False
-  activation_loading_horizon: 1
-  delayed_param: True
+  activation_checkpointing: True
+  activation_loading_horizon: 2
+  delayed_param: False
   offload_activations: False
 
   # FSDP Configs
@@ -75,8 +74,8 @@ model:
   shard_degree: 8
   backward_fetch_policy: backward_pre
   auto_wrap_policy: transformer_auto_wrap_policy
-  limit_all_gathers: False
-  use_orig_param: True
+  limit_all_gathers: true
+  use_orig_param: False
 
   # FP8 config
   fp8: True
@@ -87,29 +86,25 @@ model:
   max_context_width: 8192
   max_position_embeddings: ${.max_context_width}
   num_hidden_layers: 28
-  hidden_size: 3072
-  num_attention_heads: 24
-  intermediate_size: 8192
+  hidden_size: 3584
+  num_attention_heads: 28
+  intermediate_size: 18944
   initializer_range: 0.02
-  layernorm_epsilon: 1e-5
-  vocab_size: 128256
-  num_key_value_heads: 8
+  vocab_size: 152064
+  num_key_value_heads: 4
+  rms_norm_eps: 1e-06
+  max_window_layers: 28
   use_flash_attention: True
-  rope_theta: 500000.0
-  # rope scaling for llama3
-  rope_scaling:
-    rope_type: llama3
-    factor: 32.0
-    high_freq_factor: 4.0
-    low_freq_factor: 1.0
-    original_max_position_embeddings: 8192
-
-  tie_word_embeddings: true
+  sliding_window: 4096
+  use_sliding_window: False
+  rope_theta: 10000.0
+  tie_word_embeddings: False
 
   # Finetuning config
-  do_finetune: False
+  do_finetune: True
   # The path to resume from, needs to be HF compatible
   hf_model_name_or_path: null
+  hf_access_token: null
   # PEFT config
   peft:
     peft_type: null # lora
@@ -122,16 +117,16 @@ model:
   # Optimizer
   optim:
     name: adamw
-    lr: 0.0001
+    lr: 2e-5
     weight_decay: 0.01
     betas:
     - 0.9
-    - 0.95
+    - 0.98
     sched:
       name: CosineAnnealing
       warmup_steps: 0
       constant_steps: 0
-      min_lr: 0.000001
+      min_lr: 2e-6
 
   # Data configs
   data:
