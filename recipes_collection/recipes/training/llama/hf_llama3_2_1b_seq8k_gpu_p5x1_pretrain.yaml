@@ -138,7 +138,7 @@ model:
     train_dir: null
     val_dir: null
     dataset_type: hf
-    use_synthetic_data: True
+    use_synthetic_data: False
 
   # Profiling configs
   # Viztracer profiling options
