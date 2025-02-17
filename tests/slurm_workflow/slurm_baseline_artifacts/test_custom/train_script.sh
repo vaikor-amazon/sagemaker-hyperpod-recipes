@@ -25,6 +25,7 @@ GIT_CLONE_DIR="$HOME/tmp/$LAUNCHER_HOSTNAME"
 git clone https://github.com/example $GIT_CLONE_DIR
 GIT_CLONE_DIR=${GIT_CLONE_DIR}/
 cd $GIT_CLONE_DIR
+rm -rf __pycache__
 
 unset SLURM_NTASKS
 

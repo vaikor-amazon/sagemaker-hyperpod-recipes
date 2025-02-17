@@ -1,18 +1,35 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"). You
+# may not use this file except in compliance with the License. A copy of
+# the License is located at
+#
+#     http://aws.amazon.com/apache2.0/
+#
+# or in the "license" file accompanying this file. This file is
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
+# ANY KIND, either express or implied. See the License for the specific
+# language governing permissions and limitations under the License.
+
 import difflib
 import logging
 import os
 import shutil
 import stat
 import tempfile
+from functools import lru_cache
 from pathlib import Path
-from typing import List
+from typing import Any, List, Optional
 
 from hydra import compose, initialize
 from hydra.core.hydra_config import HydraConfig
+from omegaconf import DictConfig
 
 from launcher.nemo.constants import ROOT_DIR
 
 logger = logging.getLogger(__name__)
+
+GPUS_PER_NODE = 8
 
 
 def create_temp_directory():
@@ -72,21 +89,22 @@ def compare_files(file1_path, file2_path):
     return True
 
 
-def compose_hydra_cfg(path, config_name, overrides=[]):
+def compose_hydra_cfg(config_path: str, config_name: str, overrides: List[Any] = []) -> DictConfig:
     """Init and compose a hydra config"""
-    with initialize(version_base=None, config_path=path):
+    with initialize(version_base=None, config_path=config_path):
         return compose(config_name=config_name, overrides=overrides, return_hydra_config=True)
 
 
-def make_hydra_cfg_instance(path, config_name, overrides):
+def make_hydra_cfg_instance(config_path: str, config_name: str, overrides=[]) -> DictConfig:
     """Init hydra instance"""
     # Note: This is needed if using compose API and not hydra.main b/c we rely on hydra resolver
     # Open issue tracking fix https://github.com/facebookresearch/hydra/issues/2017
-    config = compose_hydra_cfg(path, config_name, overrides)
+    config = compose_hydra_cfg(config_path, config_name, overrides)
     HydraConfig.instance().set_config(config)
     return config
 
 
+@lru_cache(maxsize=None)
 def get_launcher_run_script_paths() -> List[Path]:
     scripts_dir = ROOT_DIR / "launcher_scripts"
     launch_script_paths = []
@@ -99,3 +117,33 @@ def get_launcher_run_script_paths() -> List[Path]:
             launch_script_paths.append(path)
 
     return launch_script_paths
+
+
+# adapted from
+# https://github.com/aws/sagemaker-hyperpod-training-adapter-for-nemo/blob/83c6037ad566ccb2584e7becab01da2ca8b6af20/src/hyperpod_nemo_adapter/conf/config_schemas.py#L78
+def validate_distributed_degrees(
+    shard_degree: Optional[int],
+    tensor_model_parallel_degree: Optional[int],
+    expert_model_parallel_degree: Optional[int],
+    context_parallel_degree: Optional[int],
+    num_nodes: Optional[int],
+) -> bool:
+    """
+    Check that the degrees are legal.
+    """
+    # default param values to 1 if they are missing
+    sd = shard_degree or 1
+    tp = tensor_model_parallel_degree or 1
+    ep = expert_model_parallel_degree or 1
+    cp = context_parallel_degree or 1
+    degree_mult = sd * tp * ep
+    gpu_per_node = int(os.environ.get("LOCAL_WORLD_SIZE", GPUS_PER_NODE))
+    world_size = (num_nodes or 1) * gpu_per_node
+
+    # Validate the degree multiplication <= world_size
+    degree_mult_is_valid = world_size % degree_mult == 0
+
+    # Validate CP degree <= shard degree
+    cp_is_valid = cp <= sd if cp > 1 else True
+
+    return degree_mult_is_valid and cp_is_valid

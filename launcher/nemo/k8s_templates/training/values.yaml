@@ -70,6 +70,7 @@ trainingConfig:
     branch: null
     commit: null
     token: null
+    update_adapter: null
 
   # Commands to run before training
   pre_script: []

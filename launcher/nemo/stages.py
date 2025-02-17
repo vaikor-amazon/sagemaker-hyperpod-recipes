@@ -386,6 +386,9 @@ class SMTraining(Training):
                         f"git clone {repo_url_or_path} $GIT_CLONE_DIR",
                         "GIT_CLONE_DIR=${GIT_CLONE_DIR}/",
                         "cd $GIT_CLONE_DIR",
+                        # cache can lead to unexpected behavior when user clones
+                        # the Adapter and modifies it
+                        "rm -rf __pycache__",
                     ]
                 )
             else:
@@ -397,6 +400,8 @@ class SMTraining(Training):
             if self.cfg.get("git", None) is not None and self.cfg.git.get("commit", None) is not None:
                 script_text.append(f"git fetch origin {self.cfg.git.commit}")
                 script_text.append(f"git reset --hard {self.cfg.git.commit}")
+            if OmegaConf.select(self.cfg, "git.update_adapter", default=False):
+                script_text.append("\npip install . --force-reinstall --no-deps")
         else:
             script_text.append('GIT_CLONE_DIR=""')
 
@@ -703,6 +708,8 @@ class SMTraining(Training):
                 values_template.trainingConfig.git.branch = self.cfg.git.branch
             if self.cfg.git.get("commit", None) is not None:
                 values_template.trainingConfig.git.commit = self.cfg.git.commit
+            if self.cfg.git.get("update_adapter", None) is not None:
+                values_template.trainingConfig.git.update_adapter = self.cfg.git.update_adapter
 
         values_template.trainingConfig.device = self.device
         values_template.trainingConfig.scriptArgs = self.get_script_args_str(stage_cfg_path)

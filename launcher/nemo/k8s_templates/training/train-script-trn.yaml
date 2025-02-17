@@ -17,6 +17,7 @@ data:
     git clone {{ $config.git.repo_url_or_path }} $GIT_CLONE_DIR
     GIT_CLONE_DIR=${GIT_CLONE_DIR}/
     cd $GIT_CLONE_DIR
+    rm -rf __pycache__
 
       {{- if $config.git.branch }}
     git checkout {{ $config.git.branch }}
@@ -25,6 +26,11 @@ data:
       {{- if $config.git.commit }}
     git fetch origin {{ $config.git.commit }}
     git reset --hard {{ $config.git.commit }}
+      {{- end }}
+      {{- if $config.git.update_adapter }}
+
+    pip install . --force-reinstall --no-deps
+
       {{- end }}
     {{- else }}
     GIT_CLONE_DIR=""

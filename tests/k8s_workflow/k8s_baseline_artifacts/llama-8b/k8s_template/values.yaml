@@ -27,6 +27,7 @@ trainingConfig:
     branch: test_branch
     commit: test_commit
     token: null
+    update_adapter: false
   pre_script: []
   post_script: []
   labelSelector:

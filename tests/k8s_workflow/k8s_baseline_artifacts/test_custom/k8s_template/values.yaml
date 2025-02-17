@@ -26,6 +26,7 @@ trainingConfig:
     branch: null
     commit: null
     token: null
+    update_adapter: null
   pre_script: []
   post_script: []
   labelSelector:
