@@ -120,5 +120,5 @@ def test_sm_jobs_workflow_multimodal():
 
     main(sample_sm_jobs_config)
 
-    compare_sm_jobs_common_artifacts(artifacts_dir, "llama3.2-11b", "multimodal")
-    is_requirements_file(artifacts_dir, "llama3.2-11b", "multimodal", True)
+    compare_sm_jobs_common_artifacts(artifacts_dir, "llama3-2-11b", "multimodal")
+    is_requirements_file(artifacts_dir, "llama3-2-11b", "multimodal", True)

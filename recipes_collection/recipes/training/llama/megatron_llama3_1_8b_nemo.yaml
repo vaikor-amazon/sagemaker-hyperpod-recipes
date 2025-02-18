@@ -2,7 +2,7 @@
 
 # Referred from https://github.com/NVIDIA/NeMo-Framework-Launcher/blob/main/launcher_scripts/conf/training/llama/llama3_1_8b.yaml
 run:
-  name: llama3_1_8b
+  name: llama3-1-8b
   results_dir: ${base_results_dir}/${.name}
   time_limit: "0-01:30:00"
   dependency: "singleton"

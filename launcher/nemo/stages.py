@@ -296,6 +296,9 @@ class SMTraining(Training):
             if OmegaConf.select(self.cfg, "recipes.model.multi_modal", default=False):
                 transformers_upgrade_cmd = "pip install transformers==4.45.2"
                 post_launch_commands.append(transformers_upgrade_cmd)
+            if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "deepseek_r1":
+                transformers_upgrade_cmd = "pip install transformers==4.48.2"
+                post_launch_commands.append(transformers_upgrade_cmd)
 
         launch_docker_container_text.append(f'  "{image}" sleep infinity')
         launch_docker_container_text.append("")
@@ -412,6 +415,10 @@ class SMTraining(Training):
         if get_container_type(self.cfg.get("container", None)) == "enroot" and self.cluster == "bcm":
             if OmegaConf.select(self.cfg, "recipes.model.multi_modal", default=False):
                 transformers_upgrade_cmd = "pip install transformers==4.45.2"
+                script_text.append("")
+                script_text.append(transformers_upgrade_cmd)
+            if OmegaConf.select(self.cfg, "recipes.model.model_type", default=False) == "deepseek_r1":
+                transformers_upgrade_cmd = "pip install transformers==4.48.2"
                 script_text.append("")
                 script_text.append(transformers_upgrade_cmd)
 
@@ -741,6 +748,9 @@ class SMTraining(Training):
 
         if OmegaConf.select(self.cfg, "recipes.model.multi_modal", default=False):
             transformers_upgrade_cmd = "pip install transformers==4.45.2"
+            values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
+        if OmegaConf.select(self.cfg, "recipes.model.model_type", default=False) == "deepseek_r1":
+            transformers_upgrade_cmd = "pip install transformers==4.48.2"
             values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
 
         return values_template
