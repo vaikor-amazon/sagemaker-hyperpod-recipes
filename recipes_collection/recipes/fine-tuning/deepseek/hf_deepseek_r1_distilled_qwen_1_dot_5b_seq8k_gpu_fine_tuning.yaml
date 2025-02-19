@@ -2,7 +2,7 @@
 
 # Basic run information configs
 run:
-  name: deepseek-r1-distilled-qwen-1_dot_5b
+  name: deepseek-r1-distilled-qwen-1-dot-5b
   results_dir: ${base_results_dir}/${.name}
   time_limit: "6-00:00:00"
   model_type: hf # huggingface for our recipes

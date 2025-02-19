@@ -14,6 +14,7 @@
 import difflib
 import logging
 import os
+import re
 import shutil
 import stat
 import tempfile
@@ -30,6 +31,8 @@ from launcher.nemo.constants import ROOT_DIR
 logger = logging.getLogger(__name__)
 
 GPUS_PER_NODE = 8
+REGEX_JOB_RUN_NAME = r"^[a-z0-9-]+$"
+PROG_JOB_RUN_NAME = re.compile(REGEX_JOB_RUN_NAME)
 
 
 def create_temp_directory():
@@ -147,3 +150,16 @@ def validate_distributed_degrees(
     cp_is_valid = cp <= sd if cp > 1 else True
 
     return degree_mult_is_valid and cp_is_valid
+
+
+def is_job_run_name_valid_for_clusters(run_name: Optional[str]) -> bool:
+    """
+    Ensure the name is valid for Slurm and Kubernetes clusters.
+    Kubernetes clusters accept only lower-case letters, numbers and hyphens.
+    https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#dns-label-names
+    """
+    # Example: "hf-llama3-70b-lora"
+    if run_name is None:
+        return False
+
+    return bool(PROG_JOB_RUN_NAME.match(run_name))
