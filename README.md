@@ -17,7 +17,7 @@ Amazon SageMaker HyperPod recipes include built-in support for:
 - Fine-tuning: Full, QLoRA, LoRA
 - AWS Instances: ml.p5.48xlarge, ml.p4d.24xlarge, and ml.trn1.32xlarge instance families
 - Supported Models: DeepSeek R1, DeepSeek R1 Distill Llama, DeepSeek R1 Distill Qwen, Llama, Mistral, Mixtral models
-- Model Evaluation: Tensorboard
+- Model Evaluation: [Tensorboard](https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.loggers.tensorboard.html#module-lightning.pytorch.loggers.tensorboard), [MLflow](https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.loggers.mlflow.html), [Wandb](https://lightning.ai/docs/pytorch/stable/extensions/generated/lightning.pytorch.loggers.WandbLogger.html) - feel free to add any key word arguments to the Logger classes by using their associated kwargs config
 
 ###### ***Note: For DeepSeek R1 671b customers must ensure that their model repository contains weights of type bf16. DeepSeek's [HuggingFace repository](https://huggingface.co/deepseek-ai/DeepSeek-R1) contains the model in dtype fp8 by default. In order to convert a model repository from fp8 to bf16 we recommend using [this script](https://github.com/aws/sagemaker-hyperpod-training-adapter-for-nemo/blob/main/src/hyperpod_nemo_adapter/scripts/fp8_cast_bf16.py) and pointing your recipe to the output directory.
 
@@ -161,7 +161,7 @@ employing the `enroot` command. Please refer to the following documentation on b
 ```bash
 REGION="us-west-2"
 IMAGE="658645717510.dkr.ecr.${REGION}.amazonaws.com/smdistributed-modelparallel:${TAG}"
-aws ecr get-login-password --region "${REGION}" | docker login --username AWS --password-stdin 855988369404.dkr.ecr.${REGION}.amazonaws.com
+aws ecr get-login-password --region "${REGION}" | docker login --username AWS --password-stdin 658645717510.dkr.ecr.${REGION}.amazonaws.com
 enroot import -o $PWD/smdistributed-modelparallel.sqsh dockerd://${IMAGE}
 mv $PWD/smdistributed-modelparallel.sqsh "/fsx/smdistributed-modelparallel.sqsh"
 ```
