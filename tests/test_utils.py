@@ -22,9 +22,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, List, Optional
 
+import yaml
 from hydra import compose, initialize
 from hydra.core.hydra_config import HydraConfig
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 
 from launcher.nemo.constants import ROOT_DIR
 
@@ -33,6 +34,14 @@ logger = logging.getLogger(__name__)
 GPUS_PER_NODE = 8
 REGEX_JOB_RUN_NAME = r"^[a-z0-9-]+$"
 PROG_JOB_RUN_NAME = re.compile(REGEX_JOB_RUN_NAME)
+
+BASELINE_CONFIG = {"recipes": {"exp_manager": {"exp_dir": None}}}
+
+
+def is_helm_template(file_path: str) -> bool:
+    # using values present in the first line of training.yaml (helm file) to heuristically differentiate helm from yaml
+    content = Path(file_path).read_text(encoding="utf-8")
+    return "{{" in content or "}}" in content or ".Values" in content
 
 
 def create_temp_directory():
@@ -75,6 +84,44 @@ def compare_artifacts(artifacts_paths, artifacts_dir, baseline_artifacts_path):
 
 
 def compare_files(file1_path, file2_path):
+    """Compare two files as YAML dictionaries if applicable."""
+    helm_files = is_helm_template(file1_path) or is_helm_template(file2_path)
+    if file1_path.endswith((".yaml", ".yml")) and file2_path.endswith((".yaml", ".yml")) and not helm_files:
+        with open(file1_path, "r") as file1, open(file2_path, "r") as file2:
+            config1 = OmegaConf.load(file1)
+            config2 = OmegaConf.load(file2)
+
+            # Create a default config that provides a value of None for missing keys.
+            defaults = OmegaConf.create(BASELINE_CONFIG)
+
+            # Merge defaults into configs.
+            config1 = OmegaConf.merge(defaults, config1)
+            config2 = OmegaConf.merge(defaults, config2)
+
+            # Resolve interpolations in both configs
+            OmegaConf.resolve(config1)
+            OmegaConf.resolve(config2)
+
+            # Convert the resolved configs to YAML
+            yaml1 = OmegaConf.to_yaml(config1)
+            yaml2 = OmegaConf.to_yaml(config2)
+
+        if yaml1 == yaml2:
+            logger.info("YAML files are identical.")
+            return True
+        else:
+            diff = list(
+                difflib.unified_diff(
+                    yaml.dump(yaml1, sort_keys=True).splitlines(),
+                    yaml.dump(yaml2, sort_keys=True).splitlines(),
+                    fromfile=file1_path,
+                    tofile=file2_path,
+                )
+            )
+            diff_block = "\n" + "\n".join(line.strip() for line in diff)
+            logger.info(f"YAML files differ:{diff_block}")
+            return False
+
     """Compare two files character by character."""
     with open(file1_path, "r") as file1, open(file2_path, "r") as file2:
         file1_content = file1.readlines()

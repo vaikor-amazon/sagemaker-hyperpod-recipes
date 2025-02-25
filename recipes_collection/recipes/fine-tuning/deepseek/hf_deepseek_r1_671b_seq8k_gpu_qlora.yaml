@@ -23,7 +23,13 @@ trainer:
 exp_manager:
   exp_dir: null
   name: experiment
-  create_tensorboard_logger: True
+  # experiment loggers
+  create_tensorboard_logger: False
+  summary_writer_kwargs: {"save_dir" : "${recipes.exp_manager.exp_dir}/tensorboard"}
+  create_mlflow_logger: False
+  mlflow_logger_kwargs: {"tracking_uri" : "${recipes.exp_manager.exp_dir}/mlflow"}
+  create_wandb_logger: False
+  wandb_logger_kwargs: {"save_dir" : "${recipes.exp_manager.exp_dir}"} # wandb creates a wandb folder by default
   create_checkpoint_callback: True
   # Configs to save checkpoint with a fixed interval
   # Note: These config will not work with auto checkpoint mode
@@ -40,7 +46,7 @@ exp_manager:
   auto_checkpoint:
     enabled: False
   export_full_model:
-    # 671B LoRA does not support export_full_model.
+    # 671B qLoRA does not support export_full_model.
     # Instead, use the merge-peft-checkpoint script after training.
     # Set every_n_train_steps = 0 to disable full checkpointing
     every_n_train_steps: 0
@@ -136,4 +142,4 @@ model:
   # Profiling configs
   # Viztracer profiling options
   viztracer:
-    enabled: True
+    enabled: False
