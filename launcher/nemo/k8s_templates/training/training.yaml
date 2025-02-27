@@ -103,23 +103,23 @@ spec:
           affinity:
             nodeAffinity:
             {{- if $config.labelSelector.required }}
-              {{- range $key, $values := $config.labelSelector.required }}
               requiredDuringSchedulingIgnoredDuringExecution:
                 nodeSelectorTerms:
                   - matchExpressions:
+                    {{- range $key, $values := $config.labelSelector.required }}
                     - key: {{ $key | quote }}
                       operator: In
                       values:
                         {{- range $values }}
                         - {{ . | quote }}
                         {{- end}}
-              {{- end }}
+                    {{- end }}
             {{- end }}
 
             {{- if $config.labelSelector.preferred }}
               {{- $index := 0 }}
-              {{- range $key, $values := $config.labelSelector.preferred }}
               preferredDuringSchedulingIgnoredDuringExecution:
+                {{- range $key, $values := $config.labelSelector.preferred }}
                 - weight: {{ index $config.labelSelector.weights $index }}
                   preference:
                     matchExpressions:
@@ -129,8 +129,8 @@ spec:
                           {{- range $values }}
                           - {{ . | quote }}
                           {{- end }}
-              {{- $index = add $index 1 }}
-              {{- end }}
+                {{- $index = add $index 1 }}
+                {{- end }}
             {{- end }}
           {{- end }}
 
