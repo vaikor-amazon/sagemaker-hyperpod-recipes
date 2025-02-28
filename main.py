@@ -14,6 +14,8 @@
 
 import math
 import os
+import random
+import string
 import sys
 from typing import Tuple
 
@@ -128,6 +130,22 @@ def get_training_stage(cfg):
         return SMCustomTrainingCPU
 
 
+def valid_run_name(cfg) -> str:
+    # Generate a random 5-character alphanumeric hash
+    random_hash = "-" + "".join(random.choices(string.ascii_lowercase + string.digits, k=5))
+
+    # validate run name was provided
+    if cfg.get("recipes") is None:
+        assert cfg.get("recipes") is None, "recipe config must be provided to submit job"
+    if cfg.recipes.get("run") is None:
+        assert cfg.recipes.get("run") is None, "run config required for recipe"
+    if cfg.recipes.run.name is None:
+        return "my-example-run" + f"{random_hash}"
+
+    # Truncate original name to align with k8s naming requirements
+    return cfg.recipes.run.name[:47] + f"{random_hash}"
+
+
 def preprocess_config(cfg) -> Tuple[bool, bool]:
     """
     Pre-process the configuration passed to the job
@@ -138,6 +156,10 @@ def preprocess_config(cfg) -> Tuple[bool, bool]:
         boolean: configuration has a custom script
         boolean: is it a SageMaker recipe
     """
+    # if not in a unit-test environment de-dupe consecutive runs by appending random hash to end of job name
+    if "pytest" not in sys.modules:
+        cfg.recipes.run.name = valid_run_name(cfg)
+
     with omegaconf.open_dict(cfg):
         cfg.launcher_scripts_path = LAUNCHER_SCRIPT_PATH
     # Override the cluster type to align with NeMo
