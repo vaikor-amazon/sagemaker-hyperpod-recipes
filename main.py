@@ -205,7 +205,7 @@ def preprocess_config(cfg) -> Tuple[bool, bool]:
             cfg.training = {"model": {"ub_tp_comm_overlap": False}}
 
         # if not in a unit-test environment de-dupe consecutive runs by appending random hash to end of job name
-        if "pytest" not in sys.modules and omegaconf.haskey(cfg.training_cfg.run, "name"):
+        if "pytest" not in sys.modules and "name" in cfg.training_cfg.run:
             cfg.training_cfg.run.name = valid_run_name(cfg.training_cfg.run.get("name", None))
 
         return True, False
@@ -214,7 +214,7 @@ def preprocess_config(cfg) -> Tuple[bool, bool]:
         model_type = cfg.recipes.run.get("model_type", None)
 
         # if not in a unit-test environment de-dupe consecutive runs by appending random hash to end of job name
-        if "pytest" not in sys.modules and omegaconf.haskey(cfg.recipes.run, "name"):
+        if "pytest" not in sys.modules and "name" in cfg.recipes.run:
             cfg.recipes.run.name = valid_run_name(cfg.recipes.run.get("name", None))
 
         with omegaconf.open_dict(cfg):
