@@ -44,6 +44,7 @@ class TypeValidator:
         ("cluster.cluster_config.volumes", "list_dict"),
         ("cluster.cluster_config.pullPolicy", "string"),
         ("cluster.cluster_config.restartPolicy", "string"),
+        ("cluster.cluster_config.cleanPodPolicy", "string"),
         ("base_results_dir", "path"),
         ("container_mounts", "list_path"),
         ("container", "string"),

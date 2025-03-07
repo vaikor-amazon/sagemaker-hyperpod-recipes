@@ -65,3 +65,6 @@ persistent_volume_claims:
 #     weights:
 #       - 100
 label_selector: null
+
+# The clean up policy after the job completes or fails.
+cleanPodPolicy: null

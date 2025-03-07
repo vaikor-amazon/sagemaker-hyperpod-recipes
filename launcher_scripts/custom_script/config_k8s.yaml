@@ -89,6 +89,9 @@ cluster:
     pullPolicy: Always # policy to pull container, can be Always, IfNotPresent and Never
     restartPolicy: Never # restart policy
 
+    # The clean up policy after the job completes or fails.
+    cleanPodPolicy: null
+
 base_results_dir: ???  # Location to store the results, checkpoints and logs.
 container_mounts: # List of additional paths to mount to container. They will be mounted to same path.
   - null

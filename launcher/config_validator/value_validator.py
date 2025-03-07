@@ -41,6 +41,9 @@ class ValueValidator:
         # Restart policy argument check for all workflows
         _validate_restart_policy_argument(self.config)
 
+        # Check if the cleanPod policy is valid for k8 workflows.
+        _validate_clean_pod_policy_argument(self.config)
+
         # Namespace argument regex check for k8 workflows
         _validate_namespace_argument(self.config)
 
@@ -172,6 +175,21 @@ def _validate_restart_policy_argument(config: DictConfig) -> None:
         supported_restart_policies = ["Always", "OnFailure", "Never", "ExitCode"]
         if restart_policy_argument not in supported_restart_policies:
             raise ValueError("Provided restartPolicy is not supported")
+
+
+def _validate_clean_pod_policy_argument(config: DictConfig) -> None:
+    """
+    Check only valid cleanPodPolicy is provided if it is not None
+
+    Parameters:
+    config (DictConfig): Configuration dictionary
+    """
+    cleanpod_policy_argument_name = "cluster.cluster_config.cleanPodPolicy"
+    cleanpod_policy_argument = get_argument(config, cleanpod_policy_argument_name)
+    if cleanpod_policy_argument is not None:
+        supported_cleanpod_policies = ["All", "Running", "None"]
+        if cleanpod_policy_argument not in supported_cleanpod_policies:
+            raise ValueError("Provided cleanPodPolicy is not supported")
 
 
 def _validate_cluster_type_argument(config: DictConfig) -> None:

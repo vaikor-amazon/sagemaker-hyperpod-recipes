@@ -28,6 +28,7 @@ VALID_CONFIGS = [
                     "namespace": "valid-namespace",
                     "pullPolicy": "Always",
                     "restartPolicy": "OnFailure",
+                    "cleanPodPolicy": "All",
                     "persistentVolumeClaims": [{"claimName": "my-claim", "mountPath": "/mount/path"}],
                 },
             },
