@@ -18,6 +18,10 @@ metadata:
     {{- end}}
     {{- end }}
 spec:
+  {{- if $config.cleanPodPolicy }}
+  runPolicy:
+    cleanPodPolicy: {{ $config.cleanPodPolicy }}
+  {{- end }}
   pytorchReplicaSpecs:
     Worker:
       replicas: {{ $config.nodes }}

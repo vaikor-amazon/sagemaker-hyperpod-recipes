@@ -82,3 +82,6 @@ trainingConfig:
     required: null # select nodes with required labels
     preferred: null # select nodes with priority which has preferred labels
     weights: null # list of weights for the preferred labels
+
+  # The clean up policy after the job completes or fails.
+  cleanPodPolicy: null

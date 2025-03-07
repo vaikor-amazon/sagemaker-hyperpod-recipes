@@ -678,6 +678,8 @@ class SMTraining(Training):
             values_template.trainingConfig.envVars = cluster_parameters["env_vars"]
         if "restartPolicy" in cluster_parameters:
             values_template.trainingConfig.restartPolicy = cluster_parameters["restartPolicy"]
+        if "cleanPodPolicy" in cluster_parameters:
+            values_template.trainingConfig.cleanPodPolicy = cluster_parameters["cleanPodPolicy"]
         if "persistent_volume_claims" in cluster_parameters:
             values_template.trainingConfig.persistentVolumeClaims = cluster_parameters["persistent_volume_claims"]
         if "volumes" in cluster_parameters:

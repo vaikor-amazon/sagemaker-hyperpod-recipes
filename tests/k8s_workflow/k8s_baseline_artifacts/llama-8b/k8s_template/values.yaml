@@ -34,6 +34,7 @@ trainingConfig:
     required: null
     preferred: null
     weights: null
+  cleanPodPolicy: null
   envVars:
     NCCL_DEBUG: WARN
     NEMO_LAUNCHER_DEBUG: 1

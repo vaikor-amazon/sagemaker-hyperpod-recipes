@@ -47,6 +47,7 @@ sample_test_config = OmegaConf.create(
                 "persistentVolumeClaim": {"claimName": "claim1", "mountPath": "/mount/path"},
                 "pullPolicy": "Always",
                 "restartPolicy": "OnFailure",
+                "cleanPodPolicy": "All",
             },
         },
         "base_results_dir": "/results",
