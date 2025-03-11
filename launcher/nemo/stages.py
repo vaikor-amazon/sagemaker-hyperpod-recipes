@@ -722,6 +722,9 @@ class SMTraining(Training):
 
         values_template.trainingConfig.device = self.device
         values_template.trainingConfig.scriptArgs = self.get_script_args_str(stage_cfg_path)
+
+        values_template.trainingConfig.pre_script = self.stage_cfg.get("pre_script", [])
+        values_template.trainingConfig.post_script = self.stage_cfg.get("post_script", [])
         return values_template
 
     def write_value_template(self, values_template, job_path):
