@@ -14,7 +14,7 @@ Amazon SageMaker HyperPod recipes include built-in support for:
 - Automated distributed checkpointing
 - Distributed optimizer
 - Accelerators: NVIDIA H100 (ml.p5), NVIDIA A100 (ml.p4), and AWS Trainium (ml.trn1)
-- Fine-tuning: Full, QLoRA, LoRA
+- Fine-tuning: Full, QLoRA, LoRA, DPO
 - AWS Instances: ml.p5.48xlarge, ml.p4d.24xlarge, and ml.trn1.32xlarge instance families
 - Supported Models: DeepSeek R1, DeepSeek R1 Distill Llama, DeepSeek R1 Distill Qwen, Llama, Mistral, Mixtral models
 - Model Evaluation: [Tensorboard](https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.loggers.tensorboard.html#module-lightning.pytorch.loggers.tensorboard), [MLflow](https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.loggers.mlflow.html), [Wandb](https://lightning.ai/docs/pytorch/stable/extensions/generated/lightning.pytorch.loggers.WandbLogger.html) - feel free to add any key word arguments to the Logger classes by using their associated kwargs config
