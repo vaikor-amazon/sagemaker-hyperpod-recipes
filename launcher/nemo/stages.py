@@ -299,6 +299,9 @@ class SMTraining(Training):
             if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "deepseek_r1":
                 transformers_upgrade_cmd = "pip install transformers==4.48.2"
                 post_launch_commands.append(transformers_upgrade_cmd)
+            if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "llama_v4":
+                transformers_upgrade_cmd = "pip install transformers==4.51.1"
+                post_launch_commands.append(transformers_upgrade_cmd)
 
         launch_docker_container_text.append(f'  "{image}" sleep infinity')
         launch_docker_container_text.append("")
@@ -419,6 +422,10 @@ class SMTraining(Training):
                 script_text.append(transformers_upgrade_cmd)
             if OmegaConf.select(self.cfg, "recipes.model.model_type", default=False) == "deepseek_r1":
                 transformers_upgrade_cmd = "pip install transformers==4.48.2"
+                script_text.append("")
+                script_text.append(transformers_upgrade_cmd)
+            if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "llama_v4":
+                transformers_upgrade_cmd = "pip install transformers==4.51.1"
                 script_text.append("")
                 script_text.append(transformers_upgrade_cmd)
 
@@ -756,6 +763,9 @@ class SMTraining(Training):
             values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
         if OmegaConf.select(self.cfg, "recipes.model.model_type", default=False) == "deepseek_r1":
             transformers_upgrade_cmd = "pip install transformers==4.48.2"
+            values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
+        if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "llama_v4":
+            transformers_upgrade_cmd = "pip install transformers==4.51.1"
             values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
 
         return values_template
