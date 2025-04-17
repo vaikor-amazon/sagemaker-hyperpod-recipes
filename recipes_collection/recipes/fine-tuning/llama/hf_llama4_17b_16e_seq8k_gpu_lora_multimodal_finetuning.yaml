@@ -69,9 +69,9 @@ model:
   moe: False
   activation_checkpointing: True
   activation_loading_horizon: 2
-  delayed_param: False
+  delayed_param: True
   offload_activations: False
-  multi_modal: False # this recipe is for text based finetuning only, in other words, the vision model is left untouched
+  multi_modal: True
 
   # FSDP Configs
   sharding_strategy: hybrid_shard
@@ -114,7 +114,7 @@ model:
   # PEFT config
   peft:
     peft_type: lora
-    target_modules: ["language_model.model.layers.*self_attn.(q_proj|k_proj|v_proj|o_proj)"]
+    target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
     rank: 16
     alpha: 16
     dropout: 0.1
