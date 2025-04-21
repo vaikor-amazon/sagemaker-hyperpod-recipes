@@ -16,11 +16,11 @@ EXP_DIR="${EXP_DIR}" # Location to save experiment info including logging, check
 
 
 HYDRA_FULL_ERROR=1 python3 "${SAGEMAKER_TRAINING_LAUNCHER_DIR}/main.py" \
-    recipes=fine-tuning/llama/hf_llama4_17b_16e_seq8k_gpu_lora_multimodal_finetuning \
+    recipes=fine-tuning/llama/hf_llama4_17b_16e_seq4k_gpu_lora_multimodal_finetuning \
     base_results_dir="${SAGEMAKER_TRAINING_LAUNCHER_DIR}/results" \
     recipes.run.name="hf-llama-4-17b-16e-lora" \
     recipes.exp_manager.exp_dir="$EXP_DIR" \
-    recipes.trainer.num_nodes=2 \
+    recipes.trainer.num_nodes=1 \
     recipes.model.train_batch_size=1 \
     recipes.model.data.train_dir="$TRAIN_DIR" \
     recipes.model.data.val_dir="$VAL_DIR" \
