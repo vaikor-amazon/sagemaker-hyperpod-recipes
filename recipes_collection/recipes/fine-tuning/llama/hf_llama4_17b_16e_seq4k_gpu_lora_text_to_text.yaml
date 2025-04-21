@@ -10,7 +10,7 @@ run:
 # Basic pytorch lightning trainer config
 trainer:
   devices: 8
-  num_nodes: 2
+  num_nodes: 1
   accelerator: gpu
   precision: bf16
   max_steps: 50
@@ -69,14 +69,14 @@ model:
   moe: False
   activation_checkpointing: True
   activation_loading_horizon: 2
-  delayed_param: True
+  delayed_param: False
   offload_activations: False
-  multi_modal: True
+  multi_modal: False # this recipe is for text based finetuning only, in other words, the vision model is left untouched
 
   # FSDP Configs
   sharding_strategy: hybrid_shard
   forward_prefetch: True
-  shard_degree: 16
+  shard_degree: 8
   backward_fetch_policy: backward_pre
   auto_wrap_policy: transformer_auto_wrap_policy
   limit_all_gathers: True
@@ -86,7 +86,7 @@ model:
   fp8: False # PEFT does not support fp8
 
   # Model architecture
-  max_context_width: 8192
+  max_context_width: 4096
   max_position_embeddings: ${.max_context_width}
   num_hidden_layers: 48 # text_config.num_hidden_layers
   hidden_size: 5120 # text_config.hidden_size
@@ -114,7 +114,7 @@ model:
   # PEFT config
   peft:
     peft_type: lora
-    target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+    target_modules: ["language_model.model.layers.*self_attn.(q_proj|k_proj|v_proj|o_proj)"]
     rank: 16
     alpha: 16
     dropout: 0.1
