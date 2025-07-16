@@ -14,9 +14,9 @@ Amazon SageMaker HyperPod recipes include built-in support for:
 - Automated distributed checkpointing
 - Distributed optimizer
 - Accelerators: NVIDIA H100 (ml.p5), NVIDIA A100 (ml.p4), and AWS Trainium (ml.trn1)
-- Fine-tuning: Full, QLoRA, LoRA, DPO
+- Fine-tuning: Full, QLoRA, LoRA, DPO, PPO
 - AWS Instances: ml.p5.48xlarge, ml.p4d.24xlarge, and ml.trn1.32xlarge instance families
-- Supported Models: DeepSeek R1, DeepSeek R1 Distill Llama, DeepSeek R1 Distill Qwen, Llama, Mistral, Mixtral models
+- Supported Models: DeepSeek R1, DeepSeek R1 Distill Llama, DeepSeek R1 Distill Qwen, Llama, Mistral, Mixtral models, Nova Micro, Nova Lite, Nova Pro.
 - Model Evaluation: [Tensorboard](https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.loggers.tensorboard.html#module-lightning.pytorch.loggers.tensorboard), [MLflow](https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.loggers.mlflow.html), [Wandb](https://lightning.ai/docs/pytorch/stable/extensions/generated/lightning.pytorch.loggers.WandbLogger.html) - feel free to add any key word arguments to the Logger classes by using their associated kwargs config
 
 ###### ***Note: For DeepSeek R1 671b customers must ensure that their model repository contains weights of type bf16. DeepSeek's [HuggingFace repository](https://huggingface.co/deepseek-ai/DeepSeek-R1) contains the model in dtype fp8 by default. In order to convert a model repository from fp8 to bf16 we recommend using [this script](https://github.com/aws/sagemaker-hyperpod-training-adapter-for-nemo/blob/main/src/hyperpod_nemo_adapter/scripts/fp8_cast_bf16.py) and pointing your recipe to the output directory.
@@ -60,18 +60,36 @@ List of specific pre-training recipes used by the launch scripts.
 | Hugging Face | Mixtral   | 7b   | 16384           | 32    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/training/mixtral/hf_mixtral_8x7b_seq16k_gpu_p5x32_pretrain.yaml) | [link](launcher_scripts/mixtral/run_hf_mixtral_8x7b_seq16k_gpu_p5x32_pretrain.sh) |
 | Hugging Face | Mixtral   | 7b   | 8192            | 16    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/training/mixtral/hf_mixtral_8x7b_seq8k_gpu_p5x16_pretrain.yaml) | [link](launcher_scripts/mixtral/run_hf_mixtral_8x7b_seq8k_gpu_p5x16_pretrain.sh) |
 | Hugging Face | Mixtral   | 7b   | 8192            | 32    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/training/mixtral/hf_mixtral_8x7b_seq8k_gpu_p5x32_pretrain.yaml) | [link](launcher_scripts/mixtral/run_hf_mixtral_8x7b_seq8k_gpu_p5x32_pretrain.sh) |
+| Amazon | Nova Micro   | -   | 8192            | 8    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/training/nova/nova_micro_p5x8_gpu_pretrain.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5x8_gpu_pretrain.sh) |
+| Amazon | Nova Lite   | -   | 8192            | 16    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/training/nova/nova_lite_p5x16_gpu_pretrain.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5x16_gpu_pretrain.sh) |
+| Amazon | Nova Pro   | -   | 8192            | 24    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/training/nova/nova_pro_p5x24_gpu_pretrain.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5x24_gpu_pretrain.sh) |
 
 
 ### Fine-Tuning
 
 List of specific fine-tuning recipes used by the launch scripts.
-All model sources are from Hugging Face.
 
 | Model     | Method | Size | Sequence length | Nodes | Instance       | Accelerator | Recipe | Script |
 | --------- | ------ | ---- | ----------------| ----- | -------------- | ----------- | ------ | ------ |
 | LLama 4 Scout | LoRA (multi-modal)  | 17B 16E (109B)   | 8192          | 2     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/llama/hf_llama4_17b_16e_seq8k_gpu_lora_multimodal_finetuning.yaml) | [link](launcher_scripts/llama/run_hf_llama4_17b_16e_seq8k_gpu_lora_multimodal_finetuning.sh) |
 | LLama 4 Scout | LoRA (multi-modal)  | 17B 16E (109B)   | 4096          | 1     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/llama/hf_llama4_17b_16e_seq4k_gpu_lora_multimodal_finetuning.yaml) | [link](launcher_scripts/llama/run_hf_llama4_17b_16e_seq4k_gpu_lora_multimodal_finetuning.sh) |
 | LLama 4 Scout | LoRA (text-only)   | 17B 16E (109B)   | 4096          | 1     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/llama/hf_llama4_17b_16e_seq4k_gpu_lora_text_to_text.yaml) | [link](launcher_scripts/llama/run_hf_llama4_17b_16e_seq4k_gpu_lora_text_to_text.sh) |
+Nova Micro | Supervised Fine-Tuning (LoRA) | -   | 65536            | 2    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_micro_p5_gpu_lora_sft.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5_gpu_lora_sft.sh) |
+Nova Micro | Supervised Fine-Tuning (Full) | -   | 65536            | 2    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_micro_p5_gpu_sft.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5_gpu_sft.sh) |
+Nova Micro | Direct Preference Optimization (Full) | -   | 32768            | 2    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_micro_p5_gpu_dpo.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5_gpu_dpo.sh) |
+Nova Micro | Direct Preference Optimization (LoRA) | -   | 32768            | 2    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_micro_p5_gpu_lora_dpo.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5_gpu_lora_dpo.sh) |
+Nova Micro | Rewards Based Reinforcement Learning (PPO) | -   | 8192            | 5    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_micro_p5_gpu_ppo.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5_gpu_ppo.sh) |
+Nova Lite | Supervised Fine-Tuning (LoRA) | -   | 32768            | 4    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_lite_p5_gpu_lora_sft.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_gpu_lora_sft.sh) |
+Nova Lite | Supervised Fine-Tuning (Full) | -   | 65536            | 4    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_lite_p5_gpu_sft.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_gpu_sft.sh) |
+Nova Lite | Direct Preference Optimization (Full) | -   | 32768            | 4    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_lite_p5_gpu_dpo.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_gpu_dpo.sh) |
+Nova Lite | Direct Preference Optimization (LoRA) | -   | 32768            | 4    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_lite_p5_gpu_lora_dpo.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_gpu_lora_dpo.sh) |
+Nova Lite | Rewards Based Reinforcement Learning (PPO) | -   | 8192            | 6    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_lite_p5_gpu_ppo.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_gpu_ppo.sh) |
+Nova Pro | Supervised Fine-Tuning (LoRA) | -   | 65536            | 6    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_pro_p5_gpu_lora_sft.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_gpu_lora_sft.sh) |
+Nova Pro | Supervised Fine-Tuning (Full) | -   | 65536            | 6    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_pro_p5_gpu_sft.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_gpu_sft.sh) |
+Nova Pro | Direct Preference Optimization (Full) | -   | 32768            | 6    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_pro_p5_gpu_dpo.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_gpu_dpo.sh) |
+Nova Pro | Direct Preference Optimization (LoRA) | -   | 32768            | 6    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_pro_p5_gpu_lora_dpo.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_gpu_lora_dpo.sh) |
+Nova Pro | Rewards Based Reinforcement Learning (PPO) | -   | 8192            | 8    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/fine-tuning/nova/nova_pro_p5_gpu_ppo.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_gpu_ppo.sh) |
+Nova Pro | Model Distillation for Post-Training | -   | -            | 1    | ml.r5.24xlarge   | -    | [link](recipes_collection/recipes/fine-tuning/nova/nova_pro_r5_cpu_distill.yaml) | [link](launcher_scripts/nova/run_nova_pro_r5_cpu_distill.sh) |
 | DeepSeek R1 | QLoRA  | 671b   | 8192          | 2     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_671b_seq8k_gpu_qlora.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_671b_seq8k_gpu_qlora.sh) |
 | DeepSeek R1 | LoRA   | 671b   | 8192          | 5     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_671b_seq8k_gpu_lora.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_671b_seq8k_gpu_lora.sh) |
 | DeepSeek R1 Distill Llama 3 | SFT  | 8b   | 8192          | 1     | ml.p5.48xlarge    | GPU H100    | [link](recipes_collection/recipes/fine-tuning/deepseek/hf_deepseek_r1_distilled_llama_8b_seq8k_gpu_fine_tuning.yaml) | [link](launcher_scripts/deepseek/run_hf_deepseek_r1_llama_8b_seq8k_gpu_fine_tuning.sh) |
@@ -123,6 +141,24 @@ All model sources are from Hugging Face.
 | Llama 3   | SFT    | 8b   | 8192            | 1     | ml.trn1.32xlarge  | TRN         | [link](recipes_collection/recipes/fine-tuning/llama/hf_llama3_8b_seq8k_trn1_fine_tuning.yaml) | [link](launcher_scripts/llama/run_hf_llama3_8b_seq8k_trn1_fine_tuning.sh) |
 
 
+### Evaluation
+
+List of specific evaluation recipes used by the launch scripts.
+
+| Model     | Method | Size | Sequence length | Nodes | Instance       | Accelerator | Recipe | Script |
+| --------- | ------ | ---- | ----------------| ----- | -------------- | ----------- | ------ | ------ |
+Nova Micro | General Text Benchmark Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_micro_p5_48xl_general_text_benchmark_eval.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5_48xl_general_text_benchmark_eval.sh) |
+Nova Micro | Bring your own dataset (gen_qa) benchmark Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_micro_p5_48xl_bring_your_own_dataset_eval.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5_48xl_bring_your_own_dataset_eval.sh) |
+Nova Micro | Nova LLM as a Judge Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_micro_p5_48xl_llm_judge_eval.yaml) | [link](launcher_scripts/nova/run_nova_micro_p5_48xl_llm_judge_eval.sh) |
+Nova Lite | General Text Benchmark Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_lite_p5_48xl_general_text_benchmark_eval.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_48xl_general_text_benchmark_eval.sh) |
+Nova Lite | Bring your own dataset (gen_qa) benchmark Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_lite_p5_48xl_bring_your_own_dataset_eval.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_48xl_bring_your_own_dataset_eval.sh) |
+Nova Lite | Nova LLM as a Judge Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_lite_p5_48xl_llm_judge_eval.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_48xl_llm_judge_eval.sh) |
+Nova Lite | Multi-Modal Benchmarks | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_lite_p5_48xl_general_multi_modal_benchmark_eval.yaml) | [link](launcher_scripts/nova/run_nova_lite_p5_48xl_general_multi_modal_benchmark_eval.sh) |
+Nova Pro | General Text Benchmark Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_pro_p5_48xl_general_text_benchmark_eval.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_48xl_general_text_benchmark_eval.sh) |
+Nova Pro | Bring your own dataset (gen_qa) benchmark Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_pro_p5_48xl_bring_your_own_dataset_eval.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_48xl_bring_your_own_dataset_eval.sh) |
+Nova Pro | Nova LLM as a Judge Recipe | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_pro_p5_48xl_llm_judge_eval.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_48xl_llm_judge_eval.sh) |
+Nova Pro | Multi-Modal Benchmarks | -   | 8192            | 1    | ml.p5.48xlarge   | GPU H100    | [link](recipes_collection/recipes/evaluation/nova/nova_pro_p5_48xl_general_multi_modal_benchmark_eval.yaml) | [link](launcher_scripts/nova/run_nova_pro_p5_48xl_general_multi_modal_benchmark_eval.sh) |
+
 ## Installation
 
 Amazon SageMaker HyperPod recipes should be installed on the head node of your HyperPod cluster or on your local machine with a virtual python environment.
@@ -143,7 +179,7 @@ which includes popular publicly-available models like Llama or Mistral. Based on
 needs, you might need to modify the parameters defined in the recipes for
 pre-training or fine-tuning. Once your configurations are setup, you can run training on SageMaker
 HyperPod (with Slurm or Amazon EKS) for workload orchestration. Alternatively, you can run the recipe on
-SageMaker training jobs using the Amazon SageMaker Python SDK.
+SageMaker training jobs using the Amazon SageMaker Python SDK. Note that Amazon Nova model recipes are only compatible with  SageMaker HyperPod with Amazon EKS and SageMaker training jobs.
 
 ### Running a recipe via a Slurm job on a SageMaker HyperPod cluster
 
@@ -220,6 +256,7 @@ hyperpod start-job --recipe training/llama/hf_llama3_8b_seq16k_gpu_p5x16_pretrai
  "cluster_type": "k8s"
 }'
 ```
+To run Amazon Nova recipe on SageMaker HyperPod clusters orchestrated by Amazon EKS, you will need to create a Restricted Instance Group in your cluster. Refer to the following documentation to [learn more](https://docs.aws.amazon.com/sagemaker/latest/dg/nova-hp-cluster.html).
 
 ### Running a recipe on SageMaker training jobs
 
@@ -300,6 +337,7 @@ Running the above code creates a `PyTorch` estimator object with the specified t
 and then trains the model using the `fit()` method. The new `training_recipe` parameter enables you
 to specify the recipe you want to use.
 
+To learn more about running Amazon Nova recipe on SageMaker training job, refer to [this documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/nova-model-training-job.html).
 
 ## Troubleshooting
 
