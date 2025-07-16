@@ -62,6 +62,11 @@ from launcher.nemo.stages import (
     SMCustomTrainingTrainium,
     get_instance_type,
 )
+from launcher.nova.launchers import (
+    NovaK8SLauncher,
+    SMNovaK8SLauncherPPO,
+    SMNovaK8SLauncherSFT,
+)
 
 omegaconf.OmegaConf.register_new_resolver("multiply", lambda x, y: x * y, replace=True)
 omegaconf.OmegaConf.register_new_resolver("divide_ceil", lambda x, y: int(math.ceil(x / y)), replace=True)
@@ -225,9 +230,50 @@ def preprocess_config(cfg) -> Tuple[bool, bool]:
     return False, False
 
 
+def get_nova_launcher(cfg) -> NovaK8SLauncher:
+    """
+    Selects and returns the appropriate NovaK8SLauncher instance based on the configuration.
+
+    If all PPO-related recipe keys are present in the configuration, returns an instance of SMNovaK8SLauncherPPO.
+    Otherwise, returns an instance of SMNovaK8SLauncherSFT.
+
+    Args:
+        cfg: Configuration object containing recipe information.
+
+    Returns:
+        NovaK8SLauncher: An instance of either SMNovaK8SLauncherPPO or SMNovaK8SLauncherSFT, depending on the configuration.
+    """
+    ppo_keys = ["ppo_reward", "ppo_critic", "ppo_anchor", "ppo_actor_generation", "ppo_actor_train"]
+    if all(cfg.recipes.get(key) is not None for key in ppo_keys):
+        return SMNovaK8SLauncherPPO(cfg)
+    return SMNovaK8SLauncherSFT(cfg)
+
+
 @hydra.main(config_path="recipes_collection", config_name="config", version_base="1.2")
 @validate_config
 def main(cfg):
+    # check if model_type is nova
+    model_type = omegaconf.OmegaConf.select(cfg, "recipes.run.model_type", default=None)
+    if model_type and model_type.startswith("amazon.nova"):
+        if cfg.cluster_type != "k8s":
+            raise ValueError(
+                "Nova recipes are only available for EKS clusters. Please update the config file to use k8s."
+            )
+        # if not in a unit-test environment de-dupe consecutive runs by appending random hash to end of job name
+        if "pytest" not in sys.modules and "name" in cfg.recipes.run:
+            cfg.recipes.run.name = valid_run_name(cfg.recipes.run.get("name", None))
+        # validation of cfg
+        if cfg.cluster.get("volumes", None) is not None:
+            raise ValueError("Recipe only can not provide volume for cluster")
+        persistent_volume_claims = cfg.cluster.get("persistent_volume_claims", None)
+        if isinstance(persistent_volume_claims, omegaconf.listconfig.ListConfig) and any(
+            item is not None for item in persistent_volume_claims
+        ):
+            raise ValueError("Recipe only can not provide persistent volume claims")
+        launcher = get_nova_launcher(cfg)
+        launcher.run()
+        return
+
     has_custom_script, has_sm_recipe = preprocess_config(cfg)
 
     if has_custom_script:
