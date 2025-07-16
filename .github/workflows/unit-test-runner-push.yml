@@ -26,6 +26,8 @@ jobs:
           pip install -r launcher/nemo/nemo_framework_launcher/requirements.txt
           pip install pytest
           pip install pytest-cov
+          pip install boto3
+          pip install botocore
 
       - name: Run unit tests
         run: |
