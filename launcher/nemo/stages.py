@@ -303,6 +303,9 @@ class SMTraining(Training):
             if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "llama_v4":
                 transformers_upgrade_cmd = "pip install transformers==4.51.3"
                 post_launch_commands.append(transformers_upgrade_cmd)
+            if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "gpt_oss":
+                transformers_upgrade_cmd = "pip install transformers==4.55.0"
+                post_launch_commands.append(transformers_upgrade_cmd)
 
         launch_docker_container_text.append(f'  "{image}" sleep infinity')
         launch_docker_container_text.append("")
@@ -427,6 +430,10 @@ class SMTraining(Training):
                 script_text.append(transformers_upgrade_cmd)
             if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "llama_v4":
                 transformers_upgrade_cmd = "pip install transformers==4.51.3"
+                script_text.append("")
+                script_text.append(transformers_upgrade_cmd)
+            if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "gpt_oss":
+                transformers_upgrade_cmd = "pip install transformers==4.55.0"
                 script_text.append("")
                 script_text.append(transformers_upgrade_cmd)
 
@@ -767,6 +774,9 @@ class SMTraining(Training):
             values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
         if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "llama_v4":
             transformers_upgrade_cmd = "pip install transformers==4.51.3"
+            values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
+        if OmegaConf.select(self.cfg, "recipes.model.model_type", default=None) == "gpt_oss":
+            transformers_upgrade_cmd = "pip install transformers==4.55.0"
             values_template.trainingConfig.pre_script.append(transformers_upgrade_cmd)
 
         return values_template
