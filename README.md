@@ -243,7 +243,7 @@ Using the recipes involves updating `k8s.yaml`, `config.yaml`, and running the l
         mountPath: data
     ```
 
-- In `config.yaml`, update `repo_url_or_path` under `git`.
+- (Optional) In `config.yaml`, update `repo_url_or_path` under `git`.
     ```
     git:
       repo_url_or_path: <training_adapter_repo>
