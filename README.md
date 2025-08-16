@@ -255,7 +255,7 @@ Using the recipes involves updating `k8s.yaml`, `config.yaml`, and running the l
 
 - Update `launcher_scripts/llama/run_hf_llama3_8b_seq16k_gpu_p5x16_pretrain.sh`
 
-    - `your_contrainer`: A Deep Learning container. To find the most recent release of the SMP container, see Release notes for the SageMaker model parallelism library.
+    - `your_container`: A Deep Learning container. To find the most recent release of the SMP container, see Release notes for the SageMaker model parallelism library.
 
     - (Optional) You can provide the HuggingFace token if you need pre-trained weights from HuggingFace by setting the following key-value pair:
     ```
@@ -268,9 +268,9 @@ Using the recipes involves updating `k8s.yaml`, `config.yaml`, and running the l
 REGION="<region>"
 IMAGE="658645717510.dkr.ecr.${REGION}.amazonaws.com/smdistributed-modelparallel:2.4.1-gpu-py311-cu121"
 SAGEMAKER_TRAINING_LAUNCHER_DIR=${SAGEMAKER_TRAINING_LAUNCHER_DIR:-"$(pwd)"}
-EXP_DIR="<your_exp_dir>" # Location to save experiment info including logging, checkpoints, ect
+EXP_DIR="<your_exp_dir>" # Location to save experiment info including logging, checkpoints, etc
 TRAIN_DIR="<your_training_data_dir>" # Location of training dataset
-VAL_DIR="<your_val_data_dir>" # Location of talidation dataset
+VAL_DIR="<your_val_data_dir>" # Location of validation dataset
 
 HYDRA_FULL_ERROR=1 python3 "${SAGEMAKER_TRAINING_LAUNCHER_DIR}/main.py" \
     recipes=training/llama/hf_llama3_8b_seq8k_gpu_p5x16_pretrain \
