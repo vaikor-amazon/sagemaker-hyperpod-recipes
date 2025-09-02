@@ -13,7 +13,7 @@ run:
 
 ## Training specific configs
 training_config:
-  max_length: 8196               # Maximum context window size (tokens). Should be between [1024, 8192] and multiple of 1024.
+  max_length: 8192               # Maximum context window size (tokens). Should be between [1024, 8192] and multiple of 1024.
   global_batch_size: 64           # Global batch size, allowed values are 16, 32, 64
 
   trainer:
