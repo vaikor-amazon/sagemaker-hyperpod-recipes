@@ -24,6 +24,11 @@ import omegaconf
 from botocore.exceptions import BotoCoreError, ClientError
 from omegaconf import DictConfig, OmegaConf
 
+from ..efa import (
+    INSTANCE_TO_DEVICE_COUNT,
+    efa_supported_instance,
+    instanceWithMultipleEFAs,
+)
 from .constants.ppo_container_constants import (
     JOB_TASK_TYPE_DICT,
     JOB_TYPE_DICT,
@@ -33,6 +38,67 @@ from .constants.ppo_container_constants import (
 from .utils import get_actor_generation_container_uri, get_init_container_uri
 
 logger = logging.getLogger(__name__)
+
+
+def _is_efa_supported(instance_type):
+    if instance_type is None:
+        return False
+
+    base_type = None
+    # Remove ml. prefix if present to get base instance type
+    if instance_type.startswith("ml."):
+        base_type = instance_type[3:]
+    else:
+        base_type = instance_type
+    return base_type in efa_supported_instance
+
+
+def get_instance_type(cfg):
+    instance_type = None
+
+    if cfg.get("instance_type"):
+        instance_type = cfg.instance_type
+    else:
+        # custom path
+        instance_type = cfg.cluster.instance_type
+
+    if instance_type is None:
+        instance_type = "p5.48xlarge"
+
+    # Add ml. prefix if not present as it is not expected as per customer contract.
+    if not instance_type.startswith("ml."):
+        instance_type = f"ml.{instance_type}"
+
+    if not _is_efa_supported(instance_type):
+        return None
+
+    return instance_type.lower()
+
+
+def get_num_efa_devices(instance_type):
+    if instance_type is None:
+        return 0
+    if instance_type.startswith("ml."):
+        instance_type = instance_type[3:]
+
+    # If not a EFA instance, return 0
+    if not _is_efa_supported(instance_type):
+        return 0
+
+    # If multi-EFA, return from mapping
+    if instance_type in instanceWithMultipleEFAs:
+        return instanceWithMultipleEFAs[instance_type]
+    # Only a single EFA device
+    return 1
+
+
+def get_device_count_for_instance(instance_type):
+    if instance_type is None:
+        return 8
+    if instance_type.startswith("ml."):
+        instance_type = instance_type[3:]
+
+    return INSTANCE_TO_DEVICE_COUNT.get(instance_type, 8)
 
 
 class NovaK8SLauncher:
@@ -47,6 +113,8 @@ class NovaK8SLauncher:
         self._output_dir_k8s_folder = self._output_dir / "k8s_templates"
         # Try to get the region using boto3 session or env var
         self._init_container_uri = get_init_container_uri()
+        self.instance_type = get_instance_type(cfg)
+        self.num_efa_devices = get_num_efa_devices(self.instance_type)
 
     @staticmethod
     def _get_aws_account_id():
@@ -61,9 +129,14 @@ class NovaK8SLauncher:
     def _get_env_vars(self):
         """Returns a dictionary of environment variables to inject."""
         account_id = self._get_aws_account_id()
+        env_vars = {}
         if account_id:
-            return {"X_AMZ_SOURCE_ACCOUNT": account_id}
-        return {}
+            env_vars["X_AMZ_SOURCE_ACCOUNT"] = account_id
+
+        if self.instance_type:
+            env_vars["INSTANCE_TYPE"] = self.instance_type
+
+        return env_vars
 
     def _prepare_output_dir(self):
         if self._output_dir_k8s_folder.exists():
@@ -127,12 +200,14 @@ class NovaK8SLauncher:
             key including both user-specified and mandatory labels.
         """
 
+        instance_type = self.instance_type
+
         # Default instance types for required labels
         # Nova jobs cannot be run on any other instance types apart from these
         # This is a hard requirement for the Nova jobs to run
         # on the required hardware.
         required_instances = {
-            "node.kubernetes.io/instance-type": ["ml.p5.48xlarge"],
+            "node.kubernetes.io/instance-type": [instance_type],
             "sagemaker.amazonaws.com/instance-group-type": ["Restricted"],
         }
 
@@ -214,6 +289,7 @@ class SMNovaK8SLauncherSFT(NovaK8SLauncher):
         values_template.trainingConfig.jobName = self._job_name
         values_template.trainingConfig.initContainer.image = self._init_container_uri
         values_template.trainingConfig.envVars = self._get_env_vars()
+        values_template.trainingConfig.numEFADevices = self.num_efa_devices
 
         # Default is 8 if we dont find value in resource_config.devices or training_config.trainer.devices
         # resource_config is for eval recipes
@@ -221,7 +297,7 @@ class SMNovaK8SLauncherSFT(NovaK8SLauncher):
         values_template.trainingConfig.devices = (
             OmegaConf.select(self.cfg, "recipes.resource_config.devices")
             or OmegaConf.select(self.cfg, "recipes.training_config.trainer.devices")
-            or 8
+            or get_device_count_for_instance(self.instance_type)
         )
         # Replicas: always at least one node
         num_nodes = OmegaConf.select(self.cfg, "recipes.run.replicas", default=0)
@@ -351,6 +427,9 @@ class SMNovaK8SLauncherPPO(NovaK8SLauncher):
         # Assign job-specific values
         values_template.trainingConfig.jobName = self._job_name
         values_template.trainingConfig.initContainer.image = self._init_container_uri
+        values_template.trainingConfig.envVars = self._get_env_vars()
+        values_template.trainingConfig.numEFADevices = self.num_efa_devices
+
         values_template["jobList"] = self._build_job_list()
 
         # Optional fields mapping

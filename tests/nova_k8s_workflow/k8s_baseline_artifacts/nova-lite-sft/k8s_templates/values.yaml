@@ -27,7 +27,8 @@ trainingConfig:
   cleanPodPolicy: null
   initContainer:
     name: init-container
-    image: 708977205387.dkr.ecr.us-east-1.amazonaws.com/init-container-repo:latest
+    image: 900867814919.dkr.ecr.us-east-1.amazonaws.com/init-container-repo:latest
     env: []
   envVars:
     X_AMZ_SOURCE_ACCOUNT: '123456789012'
+    INSTANCE_TYPE: ml.p5.48xlarge

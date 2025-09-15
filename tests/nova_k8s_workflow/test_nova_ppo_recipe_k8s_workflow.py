@@ -18,6 +18,13 @@ ppo_run_name = "nova-lite-ppo"
 
 
 @pytest.fixture(autouse=True)
+def mock_aws_account_id():
+    with patch("launcher.nova.launchers.boto3.client") as mock_boto_client:
+        mock_boto_client.return_value.get_caller_identity.return_value = {"Account": "123456789012"}
+        yield
+
+
+@pytest.fixture(autouse=True)
 def mock_aws_region():
     session_mock = MagicMock()
     session_mock.region_name = "us-east-1"

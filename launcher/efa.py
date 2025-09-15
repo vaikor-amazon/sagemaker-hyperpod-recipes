@@ -169,3 +169,33 @@ instanceWithRDMASupport = set(
         "trn2.48xlarge",
     ]
 )
+
+INSTANCE_TO_DEVICE_COUNT = {
+    "g4dn.xlarge": 1,
+    "g4dn.2xlarge": 1,
+    "g4dn.4xlarge": 1,
+    "g4dn.8xlarge": 1,
+    "g4dn.12xlarge": 4,
+    "g4dn.16xlarge": 1,
+    "g5.xlarge": 1,
+    "g5.2xlarge": 1,
+    "g5.4xlarge": 1,
+    "g5.8xlarge": 1,
+    "g5.12xlarge": 4,
+    "g5.16xlarge": 1,
+    "g5.24xlarge": 4,
+    "g6.xlarge": 1,
+    "g6.2xlarge": 1,
+    "g6.4xlarge": 1,
+    "g6.8xlarge": 1,
+    "g6.12xlarge": 4,
+    "g6.16xlarge": 1,
+    "g6.24xlarge": 4,
+    "g6e.xlarge": 1,
+    "g6e.2xlarge": 1,
+    "g6e.4xlarge": 1,
+    "g6e.8xlarge": 1,
+    "g6e.12xlarge": 2,
+    "g6e.16xlarge": 1,
+    "g6e.24xlarge": 4,
+}

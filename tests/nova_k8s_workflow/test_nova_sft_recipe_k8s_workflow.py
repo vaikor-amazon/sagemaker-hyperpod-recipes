@@ -88,6 +88,35 @@ def test_sft_recipe_k8s_workflow():
     compare_sft_recipe_k8s_artifacts(artifacts_dir)
 
 
+def test_sft_recipe_custom_instance_type():
+    """Test SFT recipe with a custom instance type."""
+    logger.info("Testing SFT recipe with custom instance type")
+
+    artifacts_dir = create_temp_directory()
+    custom_instance_type = "ml.g5.48xlarge"
+
+    overrides = [
+        f"instance_type={custom_instance_type}",
+        "recipes=fine-tuning/nova/nova_lite_p5_gpu_sft",
+        f"recipes.run.name={sft_run_name}_custom",
+        "base_results_dir={}".format(artifacts_dir),
+        "container=test_container",
+        "cluster=k8s",
+        "cluster_type=k8s",
+    ]
+
+    custom_config = make_hydra_cfg_instance("../recipes_collection", "config", overrides)
+    logger.info("\nTesting with custom instance type\n")
+
+    main(custom_config)
+
+    values_yaml_path = f"{artifacts_dir}/{sft_run_name}_custom/k8s_templates/values.yaml"
+    with open(values_yaml_path, "r") as file:
+        values_content = file.read()
+
+    assert f"- {custom_instance_type}" in values_content
+
+
 def test_recipe_k8s_workflow_invalid():
     logger.info("Testing recipe k8s workflow with invalid git config")
     overrides = [
@@ -132,4 +161,4 @@ def test_recipe_env_vars():
 
         base_class = NovaK8SLauncher(sample_recipe_k8s_config)
         result = base_class._get_env_vars()
-        assert result == {}
+        assert result == {"INSTANCE_TYPE": "ml.p5.48xlarge"}
