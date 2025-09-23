@@ -41,6 +41,6 @@ training_config:
     peft:
       peft_scheme: "lora"      # Enable LoRA for parameter-efficient fine-tuning
       lora_tuning:
-        loraplus_lr_ratio: 8.0  # LoRA+ learning rate scaling factor, must be between 0.0 and 100.0
+        loraplus_lr_ratio: 16.0  # LoRA+ learning rate scaling factor, must be between 0.0 and 100.0
         alpha: 128            # Scaling factor for LoRA weights. Allowed values are 32, 64, 96, 128, 160 and 192
         adapter_dropout: 0.01  # Regularization for LoRA parameters. Must be between 0.0 and 1.0
