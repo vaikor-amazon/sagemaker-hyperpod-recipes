@@ -28,4 +28,4 @@ inference:
 #     enabled: true
 #   postprocessing:
 #     enabled: true
-#   aggregation: macro-average
+#   aggregation: average
