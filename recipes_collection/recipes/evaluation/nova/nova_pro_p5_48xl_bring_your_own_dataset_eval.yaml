@@ -19,7 +19,7 @@ inference:
   temperature: 0
 
 # =============================================================================
-# OPTIONAL: Bring Your Own Metrics Configuration
+# OPTIONAL: Bring Your Own Metrics Configuration, only works for SMTJ
 # Uncomment and modify the section below to enable custom metrics processing
 # =============================================================================
 # processor:
