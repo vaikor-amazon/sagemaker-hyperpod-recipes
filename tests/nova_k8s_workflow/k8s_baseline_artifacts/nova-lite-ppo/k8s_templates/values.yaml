@@ -45,7 +45,7 @@ trainingConfig:
   cleanPodPolicy: null
   initContainer:
     name: init-container
-    image: 900867814919.dkr.ecr.us-east-1.amazonaws.com/init-container-repo:latest
+    image: 708977205387.dkr.ecr.us-east-1.amazonaws.com/init-container-repo:latest
     env: []
   jobName: nova-lite-ppo
   envVars:
